@@ -1,177 +1,157 @@
-Great! Since you shared the **official lecture notes** (Spring Boot Intro, REST+Exception, Spring Data JPA, Spring Security, Actuator) and we already analysed your **internal paper + previous university question paper**, I will now build a **final study plan** **chapter-wise + question-wise** strictly based on the teacher notes.
-📌 I’ll also mention the **exact file source** when relevant.
+# 📚 Spring Boot Final Exam Study Guide
+
+A comprehensive study plan based on official lecture notes covering Spring Boot fundamentals, REST APIs, JPA, Security, and deployment.
 
 ---
 
-# 📚 **Final Exam Study Plan (Based on Shared Notes)**
+## 📖 Table of Contents
 
-## 📍 **Unit 1: Spring Boot Core + Beans + Build Tool**
-
-### 🎯 Must Cover Concepts:
-
-| Topic                                                                          | Notes Source |
-| ------------------------------------------------------------------------------ | ------------ |
-| Spring Beans, IoC, Dependency Injection (Constructor, Setter, Field Injection) |              |
-| @SpringBootApplication, Auto Configuration, Component Scan                     |              |
-| Build Tools (Maven): compile, dependency mgmt, packaging                       |              |
-| Layered Architecture (Controller, Service, Repository, Entity)                 |              |
-
-### 📝 Expected Questions:
-
-* Define Beans and different ways to create them (PYQ + Internal)
-* Explain Build Tool (Maven) with advantages
-* Explain @SpringBootApplication roles
+- [Unit 1: Spring Boot Core + Beans + Build Tool](#unit-1-spring-boot-core--beans--build-tool)
+- [Unit 2: REST API + Exception Handling](#unit-2-rest-api--exception-handling)
+- [Unit 3: Spring Data JPA](#unit-3-spring-data-jpa)
+- [Unit 4: Spring Security + JWT](#unit-4-spring-security--jwt)
+- [Unit 5: Actuator + Deployment + Profiles](#unit-5-actuator--deployment--profiles)
+- [Revision Strategy](#revision-strategy)
+- [Understanding Spring Beans](#understanding-spring-beans)
 
 ---
 
-## 📍 **Unit 2: REST API + Exception Handling**
+## 📍 Unit 1: Spring Boot Core + Beans + Build Tool
 
-### 🎯 Must Cover Concepts:
+### 🎯 Must Cover Concepts
 
-| Topic                                                                           | Notes Source |
-| ------------------------------------------------------------------------------- | ------------ |
-| REST vs SOAP, URL, Endpoints                                                    |              |
-| Handler Methods: @GetMapping, @PostMapping                                      |              |
-| Input Parameters: @PathVariable, @RequestBody                                   |              |
-| Global Exception Handling: @ControllerAdvice + @ExceptionHandler + Custom Model |              |
+- **Spring Beans, IoC, Dependency Injection** (Constructor, Setter, Field Injection)
+- **@SpringBootApplication, Auto Configuration, Component Scan**
+- **Build Tools (Maven)**: compile, dependency management, packaging
+- **Layered Architecture**: Controller, Service, Repository, Entity
 
-### 📝 Expected Questions:
+### 📝 Expected Questions
 
-* What is @RequestBody/@PathVariable?
-* Explain Handler Methods with example
-* Implement global exception handling (PYQ)
+- Define Beans and different ways to create them (PYQ + Internal)
+- Explain Build Tool (Maven) with advantages
+- Explain @SpringBootApplication roles
 
 ---
 
-## 📍 **Unit 3: Spring Data JPA**
+## 📍 Unit 2: REST API + Exception Handling
 
-### 🎯 Must Cover Concepts:
+### 🎯 Must Cover Concepts
 
-| Topic                                          | Notes Source |
-| ---------------------------------------------- | ------------ |
-| ORM, JPA, Hibernate                            |              |
-| Entity + JPA Annotations: @Entity, @Id, @Table |              |
-| Repository: JpaRepository, CRUD methods        |              |
-| Query Methods + @Query (JPQL & Native)         |              |
+- **REST vs SOAP**, URL, Endpoints
+- **Handler Methods**: @GetMapping, @PostMapping
+- **Input Parameters**: @PathVariable, @RequestBody
+- **Global Exception Handling**: @ControllerAdvice + @ExceptionHandler + Custom Model
 
-### 📝 Expected Questions:
+### 📝 Expected Questions
 
-* Explain JPA annotations used to map objects (PYQ)
-* Explain JpaRepository (Internal)
-* Query Methods vs @Query with example (Internal + PYQ)
+- What is @RequestBody/@PathVariable?
+- Explain Handler Methods with example
+- Implement global exception handling (PYQ)
 
 ---
 
-## 📍 **Unit 4: Spring Security + JWT**
+## 📍 Unit 3: Spring Data JPA
 
-### 🎯 Must Cover Concepts:
+### 🎯 Must Cover Concepts
 
-| Topic                                                             | Notes Source |
-| ----------------------------------------------------------------- | ------------ |
-| Authentication vs Authorization                                   |              |
-| SecurityFilterChain (REPLACEMENT of WebSecurityConfigurerAdapter) |              |
-| In-memory Authentication + Role-Based Security                    |              |
-| Token Based Authentication + JWT Components                       |              |
+- **ORM, JPA, Hibernate**
+- **Entity + JPA Annotations**: @Entity, @Id, @Table
+- **Repository**: JpaRepository, CRUD methods
+- **Query Methods + @Query** (JPQL & Native)
 
-#### 🚨 Study JWT Components in detail (from notes)
+### 📝 Expected Questions
 
-* JWT Token Provider
-* Authentication Filter
-* Authentication Manager
-* UserDetailsService
-* Authentication Controller
-* Auth Request + Response DTO
-  (All given in steps 1–9 in the PDF) 
-
-### 📝 Expected Questions:
-
-* Explain Token-Based Authentication (Internal)
-* How does JWT work in Spring? (Internal 10-mark)
-* Customizing Security Filter Chain (Internal)
+- Explain JPA annotations used to map objects (PYQ)
+- Explain JpaRepository (Internal)
+- Query Methods vs @Query with example (Internal + PYQ)
 
 ---
 
-## 📍 **Unit 5: Actuator + Deployment + Profiles**
+## 📍 Unit 4: Spring Security + JWT
 
-### 🎯 Must Cover Concepts:
+### 🎯 Must Cover Concepts
 
-| Topic                                | Notes Source |
-| ------------------------------------ | ------------ |
-| Actuator + endpoints                 |              |
-| Spring Profiles                      |              |
-| Deployment Steps, Jar, Docker basics |              |
+- **Authentication vs Authorization**
+- **SecurityFilterChain** (REPLACEMENT of WebSecurityConfigurerAdapter)
+- **In-memory Authentication + Role-Based Security**
+- **Token Based Authentication + JWT Components**
 
-### 📝 Expected Questions:
+### 🚨 Study JWT Components in Detail
 
-* What is Actuator? Write endpoints (Internal)
-* How to configure Actuator?
-* Explain Profiles with example
-* Steps to deploy a Spring Boot app (PYQ)
+1. JWT Token Provider
+2. Authentication Filter
+3. Authentication Manager
+4. UserDetailsService
+5. Authentication Controller
+6. Auth Request + Response DTO
+
+### 📝 Expected Questions
+
+- Explain Token-Based Authentication (Internal)
+- How does JWT work in Spring? (Internal 10-mark)
+- Customizing Security Filter Chain (Internal)
 
 ---
 
-# 🏆 **Revision Strategy (Based on Mark Weightage)**
+## 📍 Unit 5: Actuator + Deployment + Profiles
+
+### 🎯 Must Cover Concepts
+
+- **Actuator + endpoints**
+- **Spring Profiles**
+- **Deployment Steps**, Jar, Docker basics
+
+### 📝 Expected Questions
+
+- What is Actuator? Write endpoints (Internal)
+- How to configure Actuator?
+- Explain Profiles with example
+- Steps to deploy a Spring Boot app (PYQ)
+
+---
+
+## 🏆 Revision Strategy
+
+### Based on Mark Weightage
 
 | Marks Type | Study Style                                      |
-| ---------- | ------------------------------------------------ |
+|------------|--------------------------------------------------|
 | 2.5 Marks  | Only definition + 1 short line + 1 example       |
 | 5 Marks    | Small diagram + explanation + small code         |
 | 10 Marks   | Step-by-step + full code + diagram + explanation |
 
 ---
 
-### 🔥 If You Want Next:
+## 🌱 Understanding Spring Beans
 
-✔ **Full Exam Answers in PDF**
-✔ **Short Notes + Diagrams + Code**
-✔ **Topic-wise Important Questions with Answers**
+### What is a Spring Bean?
 
-👉 What do you want next?
-📌 **Short Notes PDF** or 📌 **Full Exam Answer PDF**?
+A **Spring Bean** is simply a **normal Java object** (class) that **Spring creates and manages for you**.
 
-
-
-Here is the **simplest explanation** 👇🙂
-
----
-
-### 🌱 **What is a Spring Bean?**
-
-A **Spring Bean** is just a **normal Java object** (class) that **Spring creates and manages for you**.
-
-🔎 Instead of you writing:
+Instead of manually writing:
 
 ```java
 EmployeeService service = new EmployeeService();
 ```
 
-Spring creates it automatically and gives it to you when needed.
+Spring creates it automatically and provides it when needed.
 
-👉 So, a Spring Bean is a **ready-made object provided by Spring**, you don’t need to create it using `new`.
+> **Definition**: A Spring Bean is an object created and managed by the Spring IoC container, instead of being created manually in the application.
 
----
+### 💡 Why is it useful?
 
-### 💡 **Why is it useful?**
+- You don't create objects manually
+- You don't manage their lifecycle
+- Spring handles everything automatically
 
-* You don’t create objects manually.
-* You don’t manage their lifecycle.
-* Spring handles everything.
+⚙️ **Spring manages beans using the IoC container**
 
-⚙️ **Spring manages beans using the IoC container.**
-
----
-
-### 🪴 **Short Definition for Exam**
-
-> **A Spring Bean is an object created and managed by the Spring IoC container, instead of being created manually in the application.**
-
----
-
-### 🎯 Example (Simple)
+### 🎯 Example
 
 ```java
 @Component
 public class EmployeeService {
+    // Business logic here
 }
 ```
 
@@ -179,8 +159,23 @@ Here, Spring will automatically create an object of `EmployeeService` — this o
 
 ---
 
-If you want, I can next explain in simple terms:
-🔹 **What is IoC Container?** or
-🔹 **What is Dependency Injection?**
+## 📌 Key Takeaways
 
-Which one? 🙂
+- Focus on **JWT implementation steps** for 10-mark questions
+- Practice **exception handling** with @ControllerAdvice
+- Understand **JPA annotations** and their usage
+- Know the difference between **Query Methods** and **@Query**
+- Be familiar with **SecurityFilterChain** configuration
+
+---
+
+## 🔥 Next Steps
+
+- Create detailed notes for each unit
+- Practice coding examples for each concept
+- Review previous year questions (PYQ) and internal papers
+- Build sample projects implementing these concepts
+
+---
+
+**Good luck with your exam preparation! 🎓**
