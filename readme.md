@@ -997,6 +997,245 @@ public String createUser(@RequestBody User user) {
 
 ## 🛡️ Exception Handling in REST
 
+### 🤔 What is Global Exception Handling?
+
+**Simple Explanation:**
+
+Instead of writing try-catch in every controller, we create **one place** to handle all exceptions.
+
+📌 This one place is called **Global Exception Handler**.
+
+### 🏛️ Real-Life Example
+
+Suppose you are in a college:
+- 🎓 Many students (like many API controllers)
+- 📩 Complaints (like exceptions)
+- 📬 All complaints go to the Principal's office (one handling class)
+
+📌 **Principal's office = Global Exception Handler**
+
+We don't solve problems in each class. We send all errors to a single place.
+
+### 🛡️ How to Handle Exceptions Globally?
+
+We do it using:
+
+**✔ @ControllerAdvice**
+→ Says: "This class will handle all errors for every controller."
+
+**✔ @ExceptionHandler**
+→ Says: "When this specific error happens, run this method."
+
+### 🧪 Complete Example
+
+#### 🧱 Step 1: Create Custom Exception
+
+```java
+public class UserNotFoundException extends RuntimeException {
+    public UserNotFoundException(String message) {
+        super(message);
+    }
+}
+```
+
+#### 🧱 Step 2: Throw Exception in Controller
+
+```java
+@GetMapping("/user/{id}")
+public String getUser(@PathVariable int id) {
+    if(id != 1) {
+        throw new UserNotFoundException("User Not Found!");
+    }
+    return "Welcome User 1";
+}
+```
+
+💡 If ID is not 1 → Exception thrown
+
+#### 🧱 Step 3: Handle it Globally (Important)
+
+```java
+@ControllerAdvice   // Global Error Handler
+public class GlobalExceptionHandler {
+    
+    @ExceptionHandler(UserNotFoundException.class)
+    public String handleUserError(UserNotFoundException ex) {
+        return ex.getMessage();   // returns clean message
+    }
+}
+```
+
+📌 We did NOT handle the error in controller.  
+📌 The error was handled outside, in GlobalExceptionHandler.
+
+### 🎉 Final Understanding
+
+> Global Exception Handling means we centralize error handling in one class using `@ControllerAdvice`, so we don't write error handling code in every controller.
+
+---
+
+## 📌 Error Response Model (JSON Error Structure)
+
+### 💡 Simple Explanation
+
+When an error happens in a REST API, we should not return plain text like:
+```
+User not found!
+```
+
+Instead, we should return a **well-formatted JSON error**, so the client (Mobile App / Frontend) can read it easily.
+
+### 📦 Standard Error JSON Must Contain:
+
+| Field | Meaning |
+|-------|---------|
+| `timestamp` | When the error happened |
+| `status` | HTTP status code (e.g., 404, 400, 500) |
+| `message` | Short explanation of error |
+| `path` | URL that caused the error |
+
+✔ These fields make debugging easy.
+
+### 🧪 Example: JSON Error Response
+
+```json
+{
+  "timestamp": "2025-01-15T14:52:17",
+  "status": 404,
+  "message": "User not found!",
+  "path": "/user/10"
+}
+```
+
+### 🛠️ How do we return this JSON?
+
+#### 📌 Step 1: Create a Model Class
+
+```java
+public class ErrorResponse {
+    private String timestamp;
+    private int status;
+    private String message;
+    private String path;
+    
+    // Constructor
+    public ErrorResponse(String timestamp, int status, String message, String path) {
+        this.timestamp = timestamp;
+        this.status = status;
+        this.message = message;
+        this.path = path;
+    }
+    
+    // Getters and Setters
+}
+```
+
+#### 📌 Step 2: Modify Global Handler to Return JSON
+
+```java
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import jakarta.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
+
+@ControllerAdvice
+public class GlobalExceptionHandler {
+    
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUserError(
+            UserNotFoundException ex, HttpServletRequest request) {
+        
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now().toString(),
+                404,
+                ex.getMessage(),
+                request.getRequestURI());
+        
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+}
+```
+
+👉 This returns a JSON instead of a plain string.
+
+### 🧠 Short Exam Answer
+
+> The Error Response Model is a standardized JSON structure returned when an exception occurs in a REST API. It usually contains fields like `timestamp`, `status`, `message`, and `path`, helping clients understand and debug errors. A global handler using `@ControllerAdvice` and `@ExceptionHandler` can return this structured JSON.
+
+### 📝 Complete Flow Diagram
+
+```
+Client Request → Controller → Exception Thrown
+                                    ↓
+                          @ControllerAdvice catches it
+                                    ↓
+                          @ExceptionHandler handles it
+                                    ↓
+                          Returns ErrorResponse JSON
+                                    ↓
+                          Client receives structured error
+```
+
+### 🏆 10-Mark Question Answer Structure
+
+**Question: Implement global exception handling in Spring Boot REST API with custom exception and error response model.**
+
+**Answer:**
+
+Global exception handling in Spring Boot centralizes error management using `@ControllerAdvice` and `@ExceptionHandler` annotations.
+
+**Step 1: Create Custom Exception**
+```java
+public class UserNotFoundException extends RuntimeException {
+    public UserNotFoundException(String message) {
+        super(message);
+    }
+}
+```
+
+**Step 2: Create Error Response Model**
+```java
+public class ErrorResponse {
+    private String timestamp;
+    private int status;
+    private String message;
+    private String path;
+    // Constructor, Getters, Setters
+}
+```
+
+**Step 3: Create Global Exception Handler**
+```java
+@ControllerAdvice
+public class GlobalExceptionHandler {
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUserError(
+            UserNotFoundException ex, HttpServletRequest request) {
+        ErrorResponse error = new ErrorResponse(
+            LocalDateTime.now().toString(),
+            404,
+            ex.getMessage(),
+            request.getRequestURI());
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+}
+```
+
+**Step 4: Throw Exception in Controller**
+```java
+@GetMapping("/user/{id}")
+public User getUser(@PathVariable int id) {
+    if(id != 1) {
+        throw new UserNotFoundException("User not found with id: " + id);
+    }
+    return userService.findById(id);
+}
+```
+
+This approach ensures all exceptions are handled in one place, returning consistent JSON error responses to clients.
+
 ---
 
 ## 📌 Key Takeaways
