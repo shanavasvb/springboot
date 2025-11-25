@@ -95,6 +95,14 @@ A comprehensive study plan based on official lecture notes covering Spring Boot 
 - Explain JpaRepository (Internal)
 - Query Methods vs @Query with example (Internal + PYQ)
 
+### 📚 Detailed Topics Covered
+
+- [JPA Entity and Annotations](#jpa-entity-and-annotations)
+- [CRUD Operations with JpaRepository](#crud-operations-with-jparepository)
+- [Query Methods](#query-methods-in-jpa)
+- [Custom JPQL and Native Queries](#custom-jpql-and-native-sql-queries)
+- [JPA Relationships](#jpa-relationships)
+
 ---
 
 ## 📍 Unit 4: Spring Security + JWT
@@ -1254,6 +1262,421 @@ This approach ensures all exceptions are handled in one place, returning consist
 - Practice coding examples for each concept
 - Review previous year questions (PYQ) and internal papers
 - Build sample projects implementing these concepts
+
+---
+
+## 🎓 JPA Entity and Annotations
+
+### 💡 What is a JPA Entity?
+
+An **Entity** is a Java class mapped to a database table using JPA. Spring Boot uses **JPA + Hibernate** to automatically generate tables based on entity classes.
+
+### 🏷 Common JPA Annotations
+
+| Annotation        | Purpose               | Example                      |
+| ----------------- | --------------------- | ---------------------------- |
+| `@Entity`         | Marks class as table  | `@Entity class Student {}`   |
+| `@Id`             | Primary key           | `@Id int id;`                |
+| `@GeneratedValue` | Auto-increment values | `@GeneratedValue`            |
+| `@Table`          | Custom table name     | `@Table(name="student_tbl")` |
+| `@Column`         | Custom column         | `@Column(name="name")`       |
+
+### 💻 Example Code
+
+```java
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "student_tbl")
+public class Student {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+    @Column(name="name")
+    private String name;
+    
+    // Getters and Setters
+}
+```
+
+### 🧠 Conclusion
+
+> The JPA Entity maps Java objects to relational tables using simple annotations, reducing SQL table creation.
+
+---
+
+## 🗄️ CRUD Operations with JpaRepository
+
+### 💡 Simple Explanation
+
+`JpaRepository` is a JPA interface that provides built-in CRUD methods such as:
+
+* `save()` - Create/Update
+* `findAll()` - Read all records
+* `findById()` - Read single record
+* `delete()` - Delete record
+
+No SQL is required. Spring generates everything automatically.
+
+### 💻 Code Example (CRUD)
+
+#### **Entity**
+
+```java
+import jakarta.persistence.*;
+
+@Entity
+public class Product {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+    private String name;
+    private double price;
+    
+    // Getters and Setters
+}
+```
+
+#### **Repository**
+
+```java
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface ProductRepository extends JpaRepository<Product, Integer> {
+}
+```
+
+#### **Service**
+
+```java
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import java.util.List;
+
+@Service
+public class ProductService {
+    @Autowired 
+    private ProductRepository repo;
+    
+    public Product save(Product p) { 
+        return repo.save(p); 
+    }
+    
+    public List<Product> list() { 
+        return repo.findAll(); 
+    }
+    
+    public Product getById(int id) {
+        return repo.findById(id).orElse(null);
+    }
+    
+    public void delete(int id) {
+        repo.deleteById(id);
+    }
+}
+```
+
+#### **Controller**
+
+```java
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+
+@RestController
+@RequestMapping("/products")
+public class ProductController {
+    @Autowired 
+    private ProductService service;
+
+    @PostMapping 
+    public Product add(@RequestBody Product p) { 
+        return service.save(p); 
+    }
+    
+    @GetMapping 
+    public List<Product> all() { 
+        return service.list(); 
+    }
+    
+    @GetMapping("/{id}")
+    public Product getOne(@PathVariable int id) {
+        return service.getById(id);
+    }
+    
+    @DeleteMapping("/{id}")
+    public String delete(@PathVariable int id) {
+        service.delete(id);
+        return "Product deleted";
+    }
+}
+```
+
+### 🧠 Conclusion
+
+> CRUD in Spring Data JPA is simplified using `JpaRepository`, making database access faster, easier, and SQL-free.
+
+---
+
+## 🔍 Query Methods in JPA
+
+### 💡 Simple Explanation
+
+Query Methods allow searching data **without writing SQL**, using keywords like `findBy`, `countBy`, `deleteBy`. Spring Data JPA automatically generates queries based on method names.
+
+### 🏷 Supported Keywords Example
+
+| Query                                        | Purpose              | Generated SQL |
+| -------------------------------------------- | -------------------- | ------------- |
+| `findByName(String name)`                    | Search by name       | `WHERE name=?` |
+| `findByPriceGreaterThan(double p)`           | Products above price | `WHERE price>?` |
+| `findByCategoryAndPrice(String c, double p)` | AND condition        | `WHERE category=? AND price=?` |
+| `countByCategory(String category)`           | Count records        | `SELECT COUNT(*)` |
+| `deleteByName(String name)`                  | Delete by name       | `DELETE WHERE name=?` |
+
+### 💻 Example
+
+```java
+import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
+
+public interface ProductRepository extends JpaRepository<Product, Integer> {
+    // Find by category
+    List<Product> findByCategory(String category);
+    
+    // Find products with price greater than value
+    List<Product> findByPriceGreaterThan(double price);
+    
+    // Find by category AND price
+    List<Product> findByCategoryAndPrice(String category, double price);
+    
+    // Find by name containing keyword
+    List<Product> findByNameContaining(String keyword);
+    
+    // Count products by category
+    long countByCategory(String category);
+}
+```
+
+### 🧪 Usage Example
+
+```java
+@Service
+public class ProductService {
+    @Autowired
+    private ProductRepository repo;
+    
+    public List<Product> getExpensiveProducts() {
+        return repo.findByPriceGreaterThan(1000.0);
+    }
+    
+    public List<Product> searchByCategory(String category) {
+        return repo.findByCategory(category);
+    }
+}
+```
+
+### 🧠 Conclusion
+
+> Query Methods reduce code and allow dynamic searching without writing SQL.
+
+---
+
+## 📝 Custom JPQL and Native SQL Queries
+
+### 💡 Simple Explanation
+
+Sometimes complex queries are required. We can write them manually using:
+
+* **JPQL (Java Persistence Query Language)** - Object-oriented query language
+* **Native SQL Queries** - Standard SQL queries
+
+Both are written using `@Query` annotation.
+
+### 💻 Example (JPQL Query)
+
+JPQL uses entity class names and properties instead of table/column names.
+
+```java
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import java.util.List;
+
+public interface ProductRepository extends JpaRepository<Product, Integer> {
+    
+    // JPQL Query - uses class name and property names
+    @Query("SELECT p FROM Product p WHERE p.category=?1 AND p.price>?2")
+    List<Product> searchByCategoryAndPrice(String category, double price);
+    
+    // JPQL with named parameters
+    @Query("SELECT p FROM Product p WHERE p.name LIKE %:keyword%")
+    List<Product> searchByKeyword(@Param("keyword") String keyword);
+    
+    // JPQL for update
+    @Modifying
+    @Query("UPDATE Product p SET p.price = p.price * 1.1 WHERE p.category=?1")
+    void increasePriceByCategory(String category);
+}
+```
+
+### 💻 Example (Native SQL Query)
+
+Native SQL uses actual database table and column names.
+
+```java
+public interface ProductRepository extends JpaRepository<Product, Integer> {
+    
+    // Native SQL Query - uses table name and column names
+    @Query(value="SELECT * FROM product WHERE category=?1", nativeQuery=true)
+    List<Product> searchNative(String category);
+    
+    // Complex native query with JOIN
+    @Query(value="SELECT p.* FROM product p JOIN orders o ON p.id=o.product_id WHERE o.status=?1", 
+           nativeQuery=true)
+    List<Product> findProductsByOrderStatus(String status);
+}
+```
+
+### 🆚 JPQL vs Native SQL
+
+| Feature | JPQL | Native SQL |
+|---------|------|------------|
+| Syntax | Uses entity class names | Uses table names |
+| Database Independent | ✔ Yes | ❌ No |
+| Complex Joins | Moderate | ✔ Better |
+| Use Case | Most queries | Complex/specific queries |
+
+### 🧠 Conclusion
+
+> `@Query` allows writing complex SQL/JPQL queries when method names are not enough.
+
+---
+
+## 🔗 JPA Relationships
+
+### 💡 One-To-Many and Many-To-One Relationships
+
+A **One-To-Many** relation means one parent contains many children.
+
+📌 Example: One Department ➝ Many Employees
+
+### 💻 Example Code
+
+#### **Department Entity (One side)**
+
+```java
+import jakarta.persistence.*;
+import java.util.List;
+
+@Entity
+public class Department {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+    
+    private String name;
+
+    @OneToMany(mappedBy="dept", cascade=CascadeType.ALL)
+    private List<Employee> employees;
+    
+    // Getters and Setters
+}
+```
+
+#### **Employee Entity (Many side)**
+
+```java
+import jakarta.persistence.*;
+
+@Entity
+public class Employee {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+    
+    private String name;
+
+    @ManyToOne
+    @JoinColumn(name="dept_id")
+    private Department dept;
+    
+    // Getters and Setters
+}
+```
+
+### 🔍 Important Annotations
+
+| Annotation | Purpose |
+|------------|---------|
+| `@OneToMany` | Defines one-to-many relationship (parent side) |
+| `@ManyToOne` | Defines many-to-one relationship (child side) |
+| `@JoinColumn` | Specifies foreign key column name |
+| `mappedBy` | Indicates the owning side of relationship |
+| `cascade` | Propagates operations to related entities |
+
+### 💻 Repository Example
+
+```java
+public interface DepartmentRepository extends JpaRepository<Department, Integer> {
+    Department findByName(String name);
+}
+
+public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
+    List<Employee> findByDept(Department dept);
+}
+```
+
+### 💻 Service Example
+
+```java
+@Service
+public class DepartmentService {
+    @Autowired
+    private DepartmentRepository deptRepo;
+    
+    public Department saveDepartmentWithEmployees(Department dept) {
+        // Saves department and all employees due to cascade
+        return deptRepo.save(dept);
+    }
+    
+    public Department getDepartmentWithEmployees(int id) {
+        return deptRepo.findById(id).orElse(null);
+    }
+}
+```
+
+### 🧠 Conclusion
+
+> Relationship mappings allow linking multiple tables as objects, removing the need for manual joins.
+
+---
+
+## 📋 Module 3 Summary
+
+### Key Concepts Covered
+
+1. **JPA Entity & Annotations** - Mapping Java classes to database tables
+2. **JpaRepository** - Built-in CRUD operations without SQL
+3. **Query Methods** - Dynamic query generation from method names
+4. **@Query Annotation** - Custom JPQL and Native SQL queries
+5. **JPA Relationships** - One-to-Many and Many-to-One mappings
+
+### 🎯 Exam Focus Areas
+
+- Understand the difference between JPQL and Native SQL
+- Know common JPA annotations and their usage
+- Practice writing Query Methods
+- Understand relationship mappings and cascade operations
+- Be able to implement complete CRUD operations
+
+### 💡 Tips for Exam
+
+- Always include `@Entity` and `@Id` annotations in entity classes
+- Remember `extends JpaRepository<Entity, IDType>` syntax
+- Query Methods follow naming conventions strictly
+- Use `@Query` for complex queries
+- Understand bidirectional relationships and `mappedBy`
 
 ---
 
