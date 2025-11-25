@@ -6,7 +6,7 @@ A comprehensive study plan based on official lecture notes covering Spring Boot 
 
 ## 📖 Table of Contents
 
-- [Unit 1: Spring Boot Core + Beans + Build Tool](#-unit-1-spring-boot-core--beans--build-tool)
+- [Unit 1: Spring Boot Core + Beans + Build Tool](#unit-1-spring-boot-core--beans--build-tool)
 - [Unit 2: REST API + Exception Handling](#unit-2-rest-api--exception-handling)
 - [Unit 3: Spring Data JPA](#unit-3-spring-data-jpa)
 - [Unit 4: Spring Security + JWT](#unit-4-spring-security--jwt)
@@ -30,6 +30,17 @@ A comprehensive study plan based on official lecture notes covering Spring Boot 
 - Define Beans and different ways to create them (PYQ + Internal)
 - Explain Build Tool (Maven) with advantages
 - Explain @SpringBootApplication roles
+
+### 📚 Detailed Topics Covered
+
+- [Spring Beans](#understanding-spring-beans)
+- [IoC (Inversion of Control)](#ioc-inversion-of-control)
+- [Dependency Injection](#dependency-injection-di)
+- [Types of Dependency Injection](#types-of-dependency-injection)
+- [@SpringBootApplication & Auto-Configuration](#springbootapplication--auto-configuration)
+- [Ways to Create Spring Beans](#ways-to-create-spring-beans)
+- [Layered Architecture](#layered-architecture-in-spring-boot)
+- [Maven Build Tool](#maven-build-tool)
 
 ---
 
