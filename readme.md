@@ -49,15 +49,34 @@ A comprehensive study plan based on official lecture notes covering Spring Boot 
 ### 🎯 Must Cover Concepts
 
 - **REST vs SOAP**, URL, Endpoints
-- **Handler Methods**: @GetMapping, @PostMapping
+- **Handler Methods**: @GetMapping, @PostMapping, @PutMapping, @DeleteMapping
 - **Input Parameters**: @PathVariable, @RequestBody
 - **Global Exception Handling**: @ControllerAdvice + @ExceptionHandler + Custom Model
+- **Error Response Model**: Standard error JSON format
 
 ### 📝 Expected Questions
 
 - What is @RequestBody/@PathVariable?
 - Explain Handler Methods with example
 - Implement global exception handling (PYQ)
+
+### 🔥 Priority Topics (Based on PYQ + Internal)
+
+| Priority | Topic |
+|----------|-------|
+| ⭐⭐⭐⭐⭐ | REST Controller + Handler Methods |
+| ⭐⭐⭐⭐⭐ | `@PathVariable` + `@RequestBody` |
+| ⭐⭐⭐⭐⭐ | Global Exception Handling (`@ControllerAdvice`) |
+| ⭐⭐⭐⭐ | Custom Exception |
+| ⭐⭐⭐ | Error Response JSON Model |
+| ⭐⭐ | ResponseEntity |
+| ⭐ | Validation |
+
+### 📚 Detailed Topics Covered
+
+- [REST Controller & Handler Methods](#rest-controller--handler-methods)
+- [@PathVariable and @RequestBody](#pathvariable-and-requestbody)
+- [Exception Handling in REST](#exception-handling-in-rest)
 
 ---
 
@@ -455,6 +474,528 @@ public class EmployeeService {
 ### 🏆 Best Exam Answer (3–5 Marks)
 
 > Constructor Injection provides dependencies through the class constructor and is recommended for mandatory dependencies because it supports immutability and better testability. Setter Injection uses a public setter method with `@Autowired`, mainly used for optional dependencies or when the dependency needs to be changed later. Field Injection applies `@Autowired` directly on the variable, making the code short but less testable and not recommended for large applications.
+
+---
+
+## ⭐ @SpringBootApplication & Auto-Configuration
+
+### 💡 What is @SpringBootApplication?
+
+`@SpringBootApplication` is a single annotation that tells Spring Boot to:
+- ✔ Start the application
+- ✔ Create and manage beans
+- ✔ Configure everything automatically
+
+📌 It is a **shortcut** for three combined annotations:
+
+```java
+@SpringBootConfiguration
+@EnableAutoConfiguration
+@ComponentScan
+```
+
+### 🔍 Breakdown of the 3 Annotations
+
+#### 1️⃣ @SpringBootConfiguration
+- Marks this class as a Spring Boot configuration file
+- It is like saying: "Here, setup for the app begins."
+
+#### 2️⃣ @EnableAutoConfiguration
+- Spring Boot automatically configures libraries you add
+- **Example:**
+  - If you add `spring-boot-starter-web`, Boot configures Tomcat + REST automatically
+  - If you add JPA, Boot configures Hibernate + datasource automatically
+
+👉 You don't need XML or manual configs
+
+#### 3️⃣ @ComponentScan
+- Scans your package for:
+  - ✔ `@Component`
+  - ✔ `@Service`
+  - ✔ `@Repository`
+  - ✔ `@RestController`
+
+👉 Automatically identifies beans in your project
+
+### 🧪 Simple Example: Main App
+
+```java
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication   // It does all the setup!
+public class DemoApplication {
+    
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
+    }
+}
+```
+
+### 🧠 What is Auto-Configuration?
+
+Spring Boot automatically configures required components based on the libraries in your project.
+
+📌 **Example:**
+
+**If you add Web dependency, Spring Boot gives:**
+- Tomcat server
+- REST support
+- JSON support
+- Dispatcher Servlet
+
+**If you add Spring JPA, Boot gives:**
+- Hibernate
+- Transaction Manager
+- Entity Manager
+
+👉 You don't configure anything manually!
+
+### 🎯 Real-life Example: No Configuration Needed
+
+**Without auto-configuration (old way)** ❌
+- You needed an XML file to configure server, bean, MVC.
+
+**With Spring Boot (auto config)** ✔
+- Just add dependency and run!
+
+👉 Boot configures everything automatically when the server starts.
+
+### 📌 Short Exam Answer (2.5 or 5 Mark)
+
+> `@SpringBootApplication` is a combination of `@SpringBootConfiguration`, `@EnableAutoConfiguration`, and `@ComponentScan`. It enables Spring Boot to start the application, scan components, and automatically configure beans based on added dependencies. Auto-Configuration reduces manual XML/Java configuration, making application development faster and easier.
+
+---
+
+## 🔧 Ways to Create Spring Beans
+
+### 1️⃣ Creating Bean Inside XML Configuration File (beans.xml)
+
+**Traditional approach** - rarely used in modern Spring Boot
+
+```xml
+<!-- beans.xml -->
+<beans>
+    <bean id="employeeService" class="com.example.EmployeeService"/>
+</beans>
+```
+
+### 2️⃣ Using @Component Annotation
+
+Most common approach for regular classes
+
+```java
+import org.springframework.stereotype.Component;
+
+@Component
+public class EmployeeService {
+    public String getMessage() {
+        return "Service Bean Created";
+    }
+}
+```
+
+**Specialized @Component annotations:**
+- `@Service` - for service layer
+- `@Repository` - for data access layer
+- `@Controller` / `@RestController` - for web layer
+
+### 3️⃣ Using @Bean Annotation
+
+Used when you need more control over bean creation or for third-party classes
+
+```java
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class AppConfig {
+    
+    @Bean
+    public EmployeeService employeeService() {
+        return new EmployeeService();
+    }
+}
+```
+
+### 📊 Comparison
+
+| Method | Use Case | Common? |
+|--------|----------|---------|
+| XML Configuration | Legacy projects | ❌ Rarely used |
+| @Component | Your own classes | ✔ Most common |
+| @Bean | Third-party libraries, custom setup | ✔ When needed |
+
+---
+
+## 🏛️ Layered Architecture in Spring Boot
+
+### 💡 Simple Definition
+
+Layered Architecture means dividing the project into separate layers, where each layer has a specific responsibility.
+
+It makes the application:
+- ✔ Organized
+- ✔ Easier to debug
+- ✔ Easier to test
+- ✔ Easy to maintain
+
+### 🧱 Main Layers in Spring Boot
+
+| Layer | Responsibility | Annotation |
+|-------|----------------|------------|
+| **Controller** (API Layer) | Handles HTTP requests & responses | `@RestController` |
+| **Service** (Business Logic Layer) | Performs business logic/calculations | `@Service` |
+| **Repository** (Data Access Layer) | Interacts with the database | `@Repository` or `JpaRepository` |
+| **Entity** (Data Layer) | Represents database table as a class | `@Entity` |
+
+### 📌 Data Flow
+
+```
+Client → Controller → Service → Repository → Database
+```
+
+### 🧪 Simple Example (Employee Application)
+
+#### 1️⃣ Entity Layer
+Represents a DB table.
+
+```java
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+
+@Entity
+public class Employee {
+    @Id
+    private int id;
+    private String name;
+    
+    // Getters and Setters
+}
+```
+
+#### 2️⃣ Repository Layer
+Handles DB operations.
+
+```java
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
+}
+```
+
+#### 3️⃣ Service Layer
+Contains business logic.
+
+```java
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class EmployeeService {
+    
+    @Autowired
+    private EmployeeRepository repo;
+    
+    public String saveEmployee(Employee employee) {
+        repo.save(employee);
+        return "Employee Saved Successfully!";
+    }
+}
+```
+
+#### 4️⃣ Controller Layer
+Handles REST API requests.
+
+```java
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class EmployeeController {
+    
+    @Autowired
+    private EmployeeService service;
+    
+    @PostMapping("/employee")
+    public String addEmployee(@RequestBody Employee employee) {
+        return service.saveEmployee(employee);
+    }
+}
+```
+
+### 🔁 Architecture Diagram
+
+```
+     🧑‍💻 Client (Browser/Postman)
+                  │
+                  ▼
+      🌐 Controller (@RestController)
+                  │
+                  ▼
+      🧠 Service (@Service)  → Business Logic
+                  │
+                  ▼
+      💾 Repository (@Repository/JpaRepository)
+                  │
+                  ▼
+      🗄️ Database (Employee Table)
+```
+
+### 🧠 Exam Short Answer
+
+> Spring Boot uses a layered architecture consisting of Controller, Service, Repository, and Entity layers. The Controller handles requests, Service contains business logic, Repository interacts with the database, and Entity represents database tables. This separation improves maintainability, scalability, and testing.
+
+---
+
+## 🛠️ Maven Build Tool
+
+### 💡 What is Maven?
+
+Maven is a build automation tool used in Java projects to manage dependencies and build applications.
+
+🎯 It helps in:
+- ✔ Adding external libraries
+- ✔ Compiling code
+- ✔ Packaging applications (as `.jar` or `.war`)
+- ✔ Running tests
+- ✔ Deployment
+
+### 📎 Why do we need Maven?
+
+**Without Maven** ❌
+- You must manually download `.jar` files, add them to the project, manage versions.
+
+**With Maven** ✔
+- Just write dependency in `pom.xml` and Maven downloads everything automatically.
+
+### 📌 Important: pom.xml
+
+The heart of a Maven project is the file:
+
+```
+pom.xml  → Project Object Model
+```
+
+📌 It contains:
+- Project name & version
+- Dependencies (libraries)
+- Build plugins
+
+### 🧪 Example of a Dependency (Spring Boot Web)
+
+```xml
+<dependencies>
+   <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+   </dependency>
+</dependencies>
+```
+
+👉 Maven downloads Spring Boot Web libraries automatically.
+
+### 🔧 Maven Key Functions
+
+| Function | Meaning |
+|----------|---------|
+| **Compilation** | Converts source code into bytecode |
+| **Dependency Management** | Downloads required libraries automatically |
+| **Packaging** | Creates JAR/WAR file |
+| **Deployment** | Deploys to server or cloud |
+
+### 🧨 Maven Commands (Must Memorize)
+
+| Command | Use |
+|---------|-----|
+| `mvn compile` | Compiles the project |
+| `mvn package` | Creates JAR/WAR |
+| `mvn clean` | Deletes `target/` build folder |
+| `mvn install` | Adds package to local repo |
+| `mvn spring-boot:run` | Runs Spring Boot project |
+
+### 📦 How Spring Boot creates JAR?
+
+Run:
+```bash
+mvn clean package
+```
+
+Then a `.jar` is created in:
+```
+target/yourappname.jar
+```
+
+You can run it:
+```bash
+java -jar target/yourappname.jar
+```
+
+### 🧠 Short Exam Answer (2.5 / 5 Marks)
+
+> Maven is a build automation tool used in Java applications for compilation, dependency management, packaging, and deployment. It uses a central configuration file called `pom.xml` to manage project metadata and external libraries. By defining dependencies inside `pom.xml`, Maven automatically downloads required jars, making project development easier and faster.
+
+---
+
+## 🌐 REST Controller & Handler Methods
+
+### 💡 Simple Definition
+
+A REST Controller handles web requests (like GET, POST, PUT, DELETE) and returns data (usually JSON) to the client.
+
+📌 In Spring Boot, we create a REST Controller using:
+
+```java
+@RestController
+```
+
+### 🏷️ Handler Methods
+
+**What is a handler method?**
+
+A method inside a REST Controller that handles an HTTP request like GET, POST, PUT, DELETE.
+
+👉 Example:
+
+```java
+@GetMapping("/hello")
+public String sayHello() {
+    return "Hello";
+}
+```
+
+### 🚦 Most Important HTTP Mappings
+
+| Annotation | Purpose | CRUD |
+|------------|---------|------|
+| `@GetMapping` | Read data | **READ** |
+| `@PostMapping` | Add new data | **CREATE** |
+| `@PutMapping` | Update existing data | **UPDATE** |
+| `@DeleteMapping` | Delete data | **DELETE** |
+
+### 🧪 Simple Example (All Mappings Together)
+
+```java
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/users")  // Base URL
+public class UserController {
+    
+    @GetMapping
+    public String getUsers() {
+        return "All Users";
+    }
+    
+    @PostMapping
+    public String addUser() {
+        return "User Added";
+    }
+    
+    @PutMapping("/{id}")
+    public String updateUser(@PathVariable int id) {
+        return "Updated User with id: " + id;
+    }
+    
+    @DeleteMapping("/{id}")
+    public String deleteUser(@PathVariable int id) {
+        return "Deleted User with id: " + id;
+    }
+}
+```
+
+### 🧠 Exam Short Answer
+
+> `@RestController` is used to create RESTful web services in Spring Boot. Handler methods inside a REST Controller manage HTTP requests using annotations such as `@GetMapping`, `@PostMapping`, `@PutMapping`, and `@DeleteMapping`.
+
+---
+
+## 🔐 @PathVariable and @RequestBody
+
+### 📌 1) @PathVariable
+
+**💡 Simple Explanation:**
+
+`@PathVariable` is used to extract values from the URL. It is used when the value is part of the URL path, like `"/users/10"`.
+
+#### 🧪 Example:
+
+```java
+@GetMapping("/users/{id}")
+public String getUser(@PathVariable int id) {
+    return "User ID: " + id;
+}
+```
+
+📌 If client calls: `GET /users/10`  
+**Output** 👉 `User ID: 10`
+
+✔ `id` comes from the URL itself.
+
+#### 🧠 Why is it Important?
+
+- Used daily in REST APIs
+- Always asked in short answers
+- Works with GET, PUT, DELETE
+
+### 📌 2) @RequestBody
+
+**💡 Simple Explanation:**
+
+`@RequestBody` is used to read JSON data sent from the client and bind it into a Java object. It is used mainly with POST and PUT methods.
+
+#### 🔎 Example:
+
+**Step 1: Create a Class (Model)**
+
+```java
+public class User {
+    private String name;
+    private int age;
+    
+    // Getters and Setters
+}
+```
+
+**Step 2: Use @RequestBody in Controller**
+
+```java
+@PostMapping("/users")
+public String createUser(@RequestBody User user) {
+    return "Created User: " + user.getName();
+}
+```
+
+📌 If client sends:
+
+```json
+{ "name": "Rahul", "age": 22 }
+```
+
+✔ **Output** 👉 `Created User: Rahul`
+
+#### 🧠 Why is it Important?
+
+- Used in Create / Update operations
+- Always included in 5-mark questions
+- Works with JSON → Java Object Conversion
+
+### 🆚 Difference Between @PathVariable & @RequestBody
+
+| Feature | `@PathVariable` | `@RequestBody` |
+|---------|-----------------|----------------|
+| **Source** | URL path | HTTP request body |
+| **Used for** | IDs / single values | JSON input (object) |
+| **HTTP Methods** | GET, PUT, DELETE | POST, PUT |
+| **Example** | `/users/10` | `{ "name":"Raj" }` |
+
+### 📝 Short Exam Answer (2 / 3 Marks)
+
+> `@PathVariable` extracts values from the URL and is commonly used to read IDs. `@RequestBody` reads JSON data from the request body and converts it into a Java object. `@PathVariable` is mainly used with GET/PUT/DELETE methods, whereas `@RequestBody` is used with POST/PUT for sending object data.
+
+---
+
+## 🛡️ Exception Handling in REST
 
 ---
 
